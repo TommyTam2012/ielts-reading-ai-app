@@ -16,12 +16,12 @@ let currentExamId = "";
 
 function setExam(examId) {
   currentExamId = examId;
-  const pdfUrl = `/exam/IELTS/${examId}.pdf`; // ✅ UPPERCASE
+  const pdfUrl = `/exam/IELTS/${examId}.pdf`;
   window.open(pdfUrl, "_blank");
   console.log(`📘 Exam set to ${examId}`);
 }
 
-function submitQuestion() {
+async function submitQuestion() {
   const question = questionInput.value.trim();
   if (!question || !currentExamId) {
     alert("⚠️ 請選擇試卷並輸入問題");
@@ -31,24 +31,44 @@ function submitQuestion() {
   responseBox.textContent = "正在分析中，請稍候...";
   translationBox.textContent = "";
 
-  const totalPages = 13;
   const instruction = `
 You are an IELTS Academic Reading instructor. The student is asking about test ${currentExamId.toUpperCase()}.
 If the question is about Q1–Q40, or about a specific paragraph (e.g., Paragraph B or Section 2), please find the correct answer based on the reading images.
 Only answer the exact question. Do not summarize unless asked.
 `;
 
-  const imageMessages = [
+  const maxPages = 13;
+  let imageMessages = [
     { type: "text", text: instruction },
     { type: "text", text: question }
   ];
 
-  for (let i = 1; i <= totalPages; i++) {
-    const imageUrl = `/exam/IELTS/${currentExamId}_page${i}.png`; // ✅ UPPERCASE
-    imageMessages.push({
-      type: "image_url",
-      image_url: { url: window.location.origin + imageUrl }
-    });
+  const baseUrl = `${window.location.origin}/exam/IELTS/${currentExamId}_page`;
+
+  let availablePages = 0;
+
+  for (let i = 1; i <= maxPages; i++) {
+    const url = `${baseUrl}${i}.png`;
+    try {
+      const res = await fetch(url, { method: "HEAD" });
+      if (res.ok) {
+        imageMessages.push({
+          type: "image_url",
+          image_url: { url }
+        });
+        console.log(`✅ Found image: ${url}`);
+        availablePages++;
+      } else {
+        console.warn(`⚠️ Skipped: ${url} (404)`);
+      }
+    } catch (err) {
+      console.warn(`⚠️ Error fetching: ${url}`, err);
+    }
+  }
+
+  if (availablePages === 0) {
+    responseBox.textContent = "❌ 沒有找到任何圖片頁面，請確認檔案是否上傳正確。";
+    return;
   }
 
   fetch("/api/analyze", {
@@ -56,7 +76,15 @@ Only answer the exact question. Do not summarize unless asked.
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ prompt: question, messages: imageMessages })
   })
-    .then(res => res.json())
+    .then(async res => {
+      const text = await res.text();
+      try {
+        return JSON.parse(text);
+      } catch (err) {
+        console.error("❌ Server returned non-JSON:", text);
+        throw new Error("GPT returned non-JSON response");
+      }
+    })
     .then(data => {
       const answer = data.response || "❌ 無法獲取英文回答。";
       const translated = data.translated || "❌ 無法翻譯為中文。";
