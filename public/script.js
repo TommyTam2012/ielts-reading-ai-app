@@ -43,19 +43,18 @@ If they ask about a specific question (e.g., Q5 or paragraph C), find the correc
 
 After providing the answer:
 1. State which **paragraph** or **section** contains the answer.
-2. Quote or paraphrase the **exact sentence** that proves the answer.
+2. Quote or paraphrase the **exact sentence** that proves it.
 3. Be detailed but clear — this is for exam training.
 
 Only summarize the passage if the student requests it explicitly.
 `;
 
   const maxPages = 13;
-  let imageMessages = [
+  const baseUrl = `${window.location.origin}/exam/IELTS/${currentExamId}_page`;
+  const imageMessages = [
     { type: "text", text: instruction },
     { type: "text", text: question }
   ];
-
-  const baseUrl = `${window.location.origin}/exam/IELTS/${currentExamId}_page`;
 
   let availablePages = 0;
 
@@ -64,17 +63,14 @@ Only summarize the passage if the student requests it explicitly.
     try {
       const res = await fetch(url, { method: "HEAD" });
       if (res.ok) {
-        imageMessages.push({
-          type: "image_url",
-          image_url: { url }
-        });
-        console.log(`✅ Found image: ${url}`);
+        imageMessages.push({ type: "image_url", image_url: { url } });
+        console.log(`✅ Found: ${url}`);
         availablePages++;
       } else {
-        console.warn(`⚠️ Skipped: ${url} (404)`);
+        console.warn(`⚠️ Skipped: ${url}`);
       }
     } catch (err) {
-      console.warn(`⚠️ Error fetching: ${url}`, err);
+      console.warn(`⚠️ Error checking: ${url}`, err);
     }
   }
 
@@ -163,7 +159,7 @@ document.getElementById("stopTTSBtn")?.addEventListener("click", () => {
   console.log("🛑 TTS playback stopped");
 });
 
-// 🎤 Manual press-and-hold mic input (no auto-timeout)
+// 🎤 Press-and-hold mic control (no 2-second cutoff)
 if (window.SpeechRecognition || window.webkitSpeechRecognition) {
   const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
   const recognition = new SpeechRecognition();
