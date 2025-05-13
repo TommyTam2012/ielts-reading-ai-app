@@ -21,6 +21,11 @@ function setExam(examId) {
   console.log(`📘 Exam set to ${examId}`);
 }
 
+function clearHistory() {
+  historyList.innerHTML = "";
+  console.log("🧹 History cleared");
+}
+
 async function submitQuestion() {
   const question = questionInput.value.trim();
   if (!question || !currentExamId) {
@@ -33,8 +38,15 @@ async function submitQuestion() {
 
   const instruction = `
 You are an IELTS Academic Reading instructor. The student is asking about test ${currentExamId.toUpperCase()}.
-If the question is about Q1–Q40, or about a specific paragraph (e.g., Paragraph B or Section 2), please find the correct answer based on the reading images.
-Only answer the exact question. Do not summarize unless asked.
+
+If they ask about a specific question (e.g., Q5 or paragraph C), find the correct answer from the images provided.
+
+After providing the answer:
+1. State which **paragraph** or **section** contains the answer.
+2. Quote or paraphrase the **exact sentence** that proves the answer.
+3. Be detailed but clear — this is for exam training.
+
+Only summarize the passage if the student requests it explicitly.
 `;
 
   const maxPages = 13;
@@ -151,6 +163,7 @@ document.getElementById("stopTTSBtn")?.addEventListener("click", () => {
   console.log("🛑 TTS playback stopped");
 });
 
+// 🎤 Manual press-and-hold mic input (no auto-timeout)
 if (window.SpeechRecognition || window.webkitSpeechRecognition) {
   const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
   const recognition = new SpeechRecognition();
@@ -160,7 +173,7 @@ if (window.SpeechRecognition || window.webkitSpeechRecognition) {
 
   micBtn.addEventListener("mousedown", () => {
     recognition.start();
-    micBtn.textContent = "🎤 正在錄音... (松開送出)";
+    micBtn.textContent = "🎤 錄音中... (請持續按住)";
   });
 
   micBtn.addEventListener("mouseup", () => {
@@ -168,9 +181,14 @@ if (window.SpeechRecognition || window.webkitSpeechRecognition) {
     micBtn.textContent = "🎤 語音提問";
   });
 
+  micBtn.addEventListener("mouseleave", () => {
+    recognition.stop();
+    micBtn.textContent = "🎤 語音提問";
+  });
+
   micBtn.addEventListener("touchstart", () => {
     recognition.start();
-    micBtn.textContent = "🎤 正在錄音... (松開送出)";
+    micBtn.textContent = "🎤 錄音中... (請持續按住)";
   });
 
   micBtn.addEventListener("touchend", () => {
@@ -185,10 +203,11 @@ if (window.SpeechRecognition || window.webkitSpeechRecognition) {
   };
 
   recognition.onerror = (event) => {
-    alert("🎤 無法識別語音，請重試。");
-    console.error("SpeechRecognition error:", event.error);
+    alert("🎤 錄音失敗，請重試。");
+    console.error("Mic error:", event.error);
   };
 }
 
 window.submitQuestion = submitQuestion;
 window.setExam = setExam;
+window.clearHistory = clearHistory;
