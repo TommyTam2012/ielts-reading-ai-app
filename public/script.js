@@ -16,7 +16,7 @@ let currentExamId = "";
 
 function setExam(examId) {
   currentExamId = examId;
-  const pdfUrl = `/exam/IELTS/${examId}.pdf`;
+  const pdfUrl = `/exam/IELTS/${examId}.pdf`; // ✅ UPPERCASE
   window.open(pdfUrl, "_blank");
   console.log(`📘 Exam set to ${examId}`);
 }
@@ -44,7 +44,7 @@ Only answer the exact question. Do not summarize unless asked.
   ];
 
   for (let i = 1; i <= totalPages; i++) {
-    const imageUrl = `/exam/IELTS/${currentExamId}_page${i}.png`;
+    const imageUrl = `/exam/IELTS/${currentExamId}_page${i}.png`; // ✅ UPPERCASE
     imageMessages.push({
       type: "image_url",
       image_url: { url: window.location.origin + imageUrl }
