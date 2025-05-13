@@ -1,0 +1,12 @@
+{
+  "name": "ielts-reading-ai-app",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "api/analyze.js",
+  "scripts": {
+    "start": "node api/analyze.js"
+  },
+  "dependencies": {
+    "openai": "^4.0.0"
+  }
+}
