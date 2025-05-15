@@ -80,3 +80,43 @@ button:hover {
   min-height: 80px;
   max-width: 100%;
   font-size: 16
+.admin-container {
+  padding: 40px;
+  max-width: 960px;
+  margin: 0 auto;
+  font-family: "Noto Sans TC", "Microsoft JhengHei", sans-serif;
+}
+
+.admin-header {
+  font-size: 28px;
+  margin-bottom: 20px;
+  color: #003366;
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fefefe;
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.05);
+}
+
+.admin-table th {
+  background: #003366;
+  color: white;
+  padding: 10px;
+  text-align: left;
+}
+
+.admin-table td {
+  padding: 8px 12px;
+  border-bottom: 1px solid #ccc;
+}
+
+.delete-btn {
+  padding: 4px 10px;
+  color: white;
+  background: #cc0000;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
