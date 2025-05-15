@@ -38,14 +38,11 @@ async function submitQuestion() {
 
   const instruction = `
 You are an IELTS Academic Reading instructor. The student is asking about test ${currentExamId.toUpperCase()}.
-
 If they ask about a specific question (e.g., Q5 or paragraph C), find the correct answer from the images provided.
-
 After providing the answer:
-1. State which **paragraph** or **section** contains the answer.
-2. Quote or paraphrase the **exact sentence** that proves it.
+1. State which paragraph or section contains the answer.
+2. Quote or paraphrase the exact sentence that proves it.
 3. Be detailed but clear — this is for exam training.
-
 Only summarize the passage if the student requests it explicitly.
 `;
 
@@ -56,8 +53,6 @@ Only summarize the passage if the student requests it explicitly.
     { type: "text", text: question }
   ];
 
-  let availablePages = 0;
-
   for (let i = 1; i <= maxPages; i++) {
     const url = `${baseUrl}${i}.png`;
     try {
@@ -65,18 +60,10 @@ Only summarize the passage if the student requests it explicitly.
       if (res.ok) {
         imageMessages.push({ type: "image_url", image_url: { url } });
         console.log(`✅ Found: ${url}`);
-        availablePages++;
-      } else {
-        console.warn(`⚠️ Skipped: ${url}`);
       }
     } catch (err) {
       console.warn(`⚠️ Error checking: ${url}`, err);
     }
-  }
-
-  if (availablePages === 0) {
-    responseBox.textContent = "❌ 沒有找到任何圖片頁面，請確認檔案是否上傳正確。";
-    return;
   }
 
   fetch("/api/analyze", {
@@ -84,19 +71,10 @@ Only summarize the passage if the student requests it explicitly.
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ prompt: question, messages: imageMessages })
   })
-    .then(async res => {
-      const text = await res.text();
-      try {
-        return JSON.parse(text);
-      } catch (err) {
-        console.error("❌ Server returned non-JSON:", text);
-        throw new Error("GPT returned non-JSON response");
-      }
-    })
+    .then(res => res.json())
     .then(data => {
       const answer = data.response || "❌ 無法獲取英文回答。";
       const translated = data.translated || "❌ 無法翻譯為中文。";
-
       responseBox.textContent = answer;
       translationBox.textContent = `🇨🇳 中文翻譯：${translated}`;
       addToHistory(question, `${answer}<br><em>🇨🇳 中文翻譯：</em>${translated}`);
@@ -121,11 +99,7 @@ function detectLang(text) {
 
 function getVoiceForLang(lang) {
   const voices = speechSynthesis.getVoices();
-  if (lang === "zh-CN") {
-    return voices.find(v => v.lang === "zh-CN") || voices.find(v => v.name.includes("Google 普通话 女声"));
-  } else {
-    return voices.find(v => v.lang === "en-GB") || voices.find(v => v.name.includes("Google UK English Female"));
-  }
+  return voices.find(v => v.lang === lang) || voices.find(v => v.name.includes(lang.includes("zh") ? "普通话" : "English"));
 }
 
 function speakMixed(text) {
@@ -156,10 +130,8 @@ document.getElementById("ttsBtn")?.addEventListener("click", () => {
 
 document.getElementById("stopTTSBtn")?.addEventListener("click", () => {
   speechSynthesis.cancel();
-  console.log("🛑 TTS playback stopped");
 });
 
-// 🎤 Press-and-hold mic control (no 2-second cutoff)
 if (window.SpeechRecognition || window.webkitSpeechRecognition) {
   const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
   const recognition = new SpeechRecognition();
@@ -207,3 +179,36 @@ if (window.SpeechRecognition || window.webkitSpeechRecognition) {
 window.submitQuestion = submitQuestion;
 window.setExam = setExam;
 window.clearHistory = clearHistory;
+
+window.goToLogin = function () {
+  const name = document.getElementById("regName").value.trim();
+  const email = document.getElementById("regEmail").value.trim();
+  const pass = document.getElementById("regPass").value.trim();
+
+  if (!name || !email || !pass) {
+    alert("請完整填寫姓名、電子郵件與密碼！");
+    return;
+  }
+
+  localStorage.setItem("registeredName", name);
+  localStorage.setItem("registeredEmail", email.toLowerCase());
+  localStorage.setItem("registeredPass", pass);
+
+  document.getElementById("registerBox").style.display = "none";
+  document.getElementById("loginBox").style.display = "flex";
+};
+
+window.loginCheck = function () {
+  const userEmail = document.getElementById("loginUser").value.trim().toLowerCase();
+  const userPass = document.getElementById("loginPass").value.trim();
+
+  const savedEmail = localStorage.getItem("registeredEmail");
+  const savedPass = localStorage.getItem("registeredPass");
+
+  if (userEmail === savedEmail && userPass === savedPass) {
+    document.getElementById("authOverlay").style.display = "none";
+    console.log(`👋 Welcome back, ${localStorage.getItem("registeredName")}`);
+  } else {
+    alert("登入失敗，請確認電子郵件與密碼是否正確！");
+  }
+};
