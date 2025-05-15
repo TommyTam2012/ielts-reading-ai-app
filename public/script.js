@@ -193,37 +193,18 @@ window.submitQuestion = submitQuestion;
 window.setExam = setExam;
 window.clearHistory = clearHistory;
 
-window.registerAccount = async function () {
+window.registerAccount = function () {
   const name = document.getElementById("regName").value.trim();
   const email = document.getElementById("regEmail").value.trim();
-  const pass = document.getElementById("regPass").value.trim();
+  const pass = document.getElementById("regPass").value.trim(); // just in case you want to log it
 
   if (!name || !email || !pass) {
     alert("請完整填寫姓名、電子郵件與密碼！");
     return;
   }
 
-  const { data, error } = await supabase.auth.signUp({
-    email,
-    password: pass
-  });
-
-  if (error) {
-    alert("❌ 註冊失敗：" + error.message);
-    return;
-  }
-
-  const user = data.user;
-
-  // Save name to profiles table
-  const { error: profileError } = await supabase.from("profiles").insert([
-    { id: user.id, name }
-  ]);
-
-  if (profileError) {
-    alert("❌ 註冊成功，但無法儲存姓名：" + profileError.message);
-    return;
-  }
+  // Log registration to sheet
+  logToSheet(name, email, "register");
 
   alert("✅ 註冊成功！請前往登入畫面。");
   document.getElementById("registerBox").style.display = "none";
@@ -239,18 +220,22 @@ window.loginCheck = async function () {
   const email = document.getElementById("loginUser").value.trim();
   const pass = document.getElementById("loginPass").value.trim();
 
-  const { user, error } = await supabase.auth.signIn({
-    email,
-    password: pass
-  });
+  document.getElementById("authOverlay").style.display = "none";
 
-  if (error) {
-    alert("❌ 登入失敗：" + error.message);
+  window.logoutNow = function () {
+  const email = document.getElementById("loginUser").value.trim();
+
+  if (!email) {
+    alert("⚠️ 未找到使用者電郵，無法登出紀錄！");
     return;
   }
 
-  document.getElementById("authOverlay").style.display = "none";
-  console.log("👋 Welcome,", user.email);
+  logToSheet("Student", email, "logout");
+  alert("👋 登出已記錄。請關閉或重新登入。");
+
+  // Optionally show login again
+  document.getElementById("authOverlay").style.display = "flex";
+};
 
   // Log login to Google Sheet
   logToSheet("Student", email, "login");
