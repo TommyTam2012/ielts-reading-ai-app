@@ -190,17 +190,17 @@ window.registerAccount = async function () {
     return;
   }
 
-  const { data, error } = await supabase.auth.signUp({
+ const { user, error } = await supabase.auth.signUp(
+  {
     email,
     password: pass
-  });
+  }
+);
 
   if (error) {
     alert("❌ 註冊失敗：" + error.message);
     return;
   }
-
-  const user = data.user;
 
   // Save name to profiles table
   const { error: profileError } = await supabase.from("profiles").insert([
