@@ -20,7 +20,7 @@ export default async function handler(req, res) {
       const timestamp = new Date(Number(rawTs)).toISOString();
       return { email, timestamp };
     } catch {
-      return { email: 'Error', timestamp: new Date().toISOString() };
+      return { email: 'ParseError', timestamp: new Date().toISOString() };
     }
   });
 
