@@ -1,17 +1,4 @@
 console.log("🟢 script.js loaded successfully");
-// Log login time into usage_logs
-const { error: logError } = await supabase.from("usage_logs").insert([
-  {
-    user_id: data.user.id,
-    login_time: new Date().toISOString()
-  }
-]);
-
-if (logError) {
-  console.error("⚠️ Failed to log login time:", logError.message);
-} else {
-  console.log("🕓 Login time recorded.");
-}
 
 const responseBox = document.getElementById("responseBox");
 const questionInput = document.getElementById("questionInput");
@@ -251,4 +238,18 @@ window.loginCheck = async function () {
 
   document.getElementById("authOverlay").style.display = "none";
   console.log("👋 Welcome,", data.user.email);
+
+  // Log login time into usage_logs
+  const { error: logError } = await supabase.from("usage_logs").insert([
+    {
+      user_id: data.user.id,
+      login_time: new Date().toISOString()
+    }
+  ]);
+
+  if (logError) {
+    console.error("⚠️ Failed to log login time:", logError.message);
+  } else {
+    console.log("🕓 Login time recorded.");
+  }
 };
