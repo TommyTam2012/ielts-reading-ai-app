@@ -3,11 +3,12 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Only POST allowed' });
   }
 
-  const { name, email, action } = req.body;
-
-  if (!name || !email || !action) {
-    return res.status(400).json({ error: 'Missing fields' });
+  const { email } = req.body;
+  if (!email) {
+    return res.status(400).json({ error: 'Missing email' });
   }
+
+  const key = `log:${email}:${Date.now()}`;
 
   const payload = {
     method: 'POST',
@@ -15,17 +16,9 @@ export default async function handler(req, res) {
       Authorization: 'Bearer AUEfAAIjcDFkMTBkNTFmYmIzM2I0ZGQwYTUzODk5NDI2YmZkNTMwZHAxMA',
       'Content-Type': 'application/json'
     },
-    body: JSON.stringify({
-      value: JSON.stringify({
-        name,
-        email,
-        action,
-        timestamp: new Date().toISOString()
-      })
-    })
+    body: JSON.stringify({ timestamp: Date.now() }) // ✅ minimalist format
   };
 
-  const key = `log:${email}:${Date.now()}`;
   const response = await fetch(`https://firm-imp-16671.upstash.io/set/${key}`, payload);
   const data = await response.json();
 
