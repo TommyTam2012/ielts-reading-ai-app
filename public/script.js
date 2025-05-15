@@ -226,7 +226,7 @@ window.loginCheck = async function () {
   const email = document.getElementById("loginUser").value.trim();
   const pass = document.getElementById("loginPass").value.trim();
 
-  const { data, error } = await supabase.auth.signInWithPassword({
+  const { user, error } = await supabase.auth.signIn({
     email,
     password: pass
   });
@@ -237,12 +237,12 @@ window.loginCheck = async function () {
   }
 
   document.getElementById("authOverlay").style.display = "none";
-  console.log("👋 Welcome,", data.user.email);
+  console.log("👋 Welcome,", user.email);
 
   // Log login time into usage_logs
   const { error: logError } = await supabase.from("usage_logs").insert([
     {
-      user_id: data.user.id,
+      user_id: user.id,
       login_time: new Date().toISOString()
     }
   ]);
@@ -253,3 +253,4 @@ window.loginCheck = async function () {
     console.log("🕓 Login time recorded.");
   }
 };
+
