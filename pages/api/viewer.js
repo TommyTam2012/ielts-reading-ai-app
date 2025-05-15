@@ -7,6 +7,7 @@ export default async function handler(req, res) {
   });
 
   const keysData = await keysRes.json();
+
   if (!keysData.result || keysData.result.length === 0) {
     return res.status(200).json({ logs: [] });
   }
@@ -16,12 +17,13 @@ export default async function handler(req, res) {
       const parts = key.split(':');
       const email = parts[1] || 'Unknown';
       const millis = Number(parts[2]) || Date.now();
-      const timestamp = new Date(millis).toISOString();
+      const timestamp = new Date(millis).toISOString(); // Or format as you like
+
       return { key, email, timestamp };
     } catch {
       return { key, email: 'ParseError', timestamp: new Date().toISOString() };
     }
   });
 
-  res.status(200).json({ logs });
+  return res.status(200).json({ logs });
 }
