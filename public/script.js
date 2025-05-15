@@ -180,7 +180,7 @@ window.submitQuestion = submitQuestion;
 window.setExam = setExam;
 window.clearHistory = clearHistory;
 
-window.goToLogin = function () {
+window.registerAccount = function () {
   const name = document.getElementById("regName").value.trim();
   const email = document.getElementById("regEmail").value.trim();
   const pass = document.getElementById("regPass").value.trim();
@@ -194,6 +194,10 @@ window.goToLogin = function () {
   localStorage.setItem("registeredEmail", email.toLowerCase());
   localStorage.setItem("registeredPass", pass);
 
+  alert("✅ 註冊成功！請前往登入畫面。");
+};
+
+window.goToLoginPage = function () {
   document.getElementById("registerBox").style.display = "none";
   document.getElementById("loginBox").style.display = "flex";
 };
@@ -212,5 +216,3 @@ window.loginCheck = function () {
     alert("登入失敗，請確認電子郵件與密碼是否正確！");
   }
 };
-
-
