@@ -1,4 +1,3 @@
-// pages/admin.js
 import { useEffect, useState } from 'react';
 
 export default function AdminLogViewer() {
@@ -15,6 +14,22 @@ export default function AdminLogViewer() {
       .catch(() => setLoading(false));
   }, []);
 
+  function handleDelete(key) {
+    if (!confirm(`Delete log: ${key}?`)) return;
+
+    fetch('/api/delete-log', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ key }),
+    })
+      .then((res) => res.json())
+      .then(() => {
+        setLogs((prev) => prev.filter((log) => log.key !== key));
+      });
+  }
+
   return (
     <div style={styles.container}>
       <h1 style={styles.header}>📖 Admin Log Viewer</h1>
@@ -29,7 +44,8 @@ export default function AdminLogViewer() {
               <th>🗝️ Key</th>
               <th>📧 Email</th>
               <th>📄 Action</th>
-              <th>🕒 Timestamp</th>
+              <th>🕒 Time (HKT)</th>
+              <th>🗑️ Delete</th>
             </tr>
           </thead>
           <tbody>
@@ -38,7 +54,25 @@ export default function AdminLogViewer() {
                 <td>{log.key}</td>
                 <td>{log.email || '-'}</td>
                 <td>{log.action || '-'}</td>
-                <td>{new Date(Number(log.timestamp)).toLocaleString()}</td>
+                <td>
+                  {new Date(Number(log.timestamp)).toLocaleString('en-HK', {
+                    timeZone: 'Asia/Hong_Kong',
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit',
+                  })}
+                </td>
+                <td>
+                  <button
+                    style={styles.deleteBtn}
+                    onClick={() => handleDelete(log.key)}
+                  >
+                    Delete
+                  </button>
+                </td>
               </tr>
             ))}
           </tbody>
@@ -66,13 +100,12 @@ const styles = {
     background: '#fefefe',
     boxShadow: '0 0 8px rgba(0,0,0,0.05)',
   },
-  th: {
-    background: '#003366',
+  deleteBtn: {
+    padding: '4px 10px',
     color: 'white',
-    padding: '10px',
-  },
-  td: {
-    padding: '8px 12px',
-    borderBottom: '1px solid #ccc',
+    background: '#cc0000',
+    border: 'none',
+    borderRadius: '6px',
+    cursor: 'pointer',
   },
 };
