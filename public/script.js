@@ -1,9 +1,17 @@
-const SUPABASE_URL = "https://tommytam2012s-project.supabase.co";
-const SUPABASE_ANON_KEY = "your-actual-anon-key-here";
-
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
 console.log("🟢 script.js loaded successfully");
+
+const GOOGLE_SHEET_WEBHOOK = "https://script.google.com/macros/s/AKfycbzLpaZZe4pZR2ufpn640pliAK8epEMZVpVb2BGh4xjFrRQj12adoltRy91m9pxbpPIZAA/exec";
+
+function logToSheet(name, email, action) {
+  fetch(GOOGLE_SHEET_WEBHOOK, {
+    method: "POST",
+    body: JSON.stringify({ name, email, action }),
+    headers: { "Content-Type": "application/json" }
+  })
+  .then(res => res.text())
+  .then(result => console.log("📄 Sheet logged:", result))
+  .catch(err => console.error("❌ Sheet log failed:", err));
+}
 
 const responseBox = document.getElementById("responseBox");
 const questionInput = document.getElementById("questionInput");
@@ -195,17 +203,17 @@ window.registerAccount = async function () {
     return;
   }
 
- const { user, error } = await supabase.auth.signUp(
-  {
+  const { data, error } = await supabase.auth.signUp({
     email,
     password: pass
-  }
-);
+  });
 
   if (error) {
     alert("❌ 註冊失敗：" + error.message);
     return;
   }
+
+  const user = data.user;
 
   // Save name to profiles table
   const { error: profileError } = await supabase.from("profiles").insert([
@@ -244,18 +252,6 @@ window.loginCheck = async function () {
   document.getElementById("authOverlay").style.display = "none";
   console.log("👋 Welcome,", user.email);
 
-  // Log login time into usage_logs
-  const { error: logError } = await supabase.from("usage_logs").insert([
-    {
-      user_id: user.id,
-      login_time: new Date().toISOString()
-    }
-  ]);
-
-  if (logError) {
-    console.error("⚠️ Failed to log login time:", logError.message);
-  } else {
-    console.log("🕓 Login time recorded.");
-  }
+  // Log login to Google Sheet
+  logToSheet("Student", email, "login");
 };
-
