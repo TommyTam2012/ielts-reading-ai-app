@@ -1,7 +1,7 @@
 const SUPABASE_URL = "https://your-project-id.supabase.co"; // ← replace with your actual URL
 const SUPABASE_ANON_KEY = "your-anon-public-key";           // ← replace with your actual key
 
-const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 supabase.auth.getSession().then(({ data: { session } }) => {
   console.log("🧪 Supabase connected. Session:", session);
