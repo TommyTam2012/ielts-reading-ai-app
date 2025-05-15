@@ -1,7 +1,5 @@
 console.log("🟢 script.js loaded successfully");
 
-const GOOGLE_SHEET_WEBHOOK = "https://script.google.com/macros/s/AKfycbzLpaZZe4pZR2ufpn640pliAK8epEMZVpVb2BGh4xjFrRQj12adoltRy91m9pxbpPIZAA/exec";
-
 function logToServer(name, email, action) {
   fetch("/api/log", {
     method: "POST",
@@ -12,6 +10,7 @@ function logToServer(name, email, action) {
   .then(result => console.log("📦 Log stored:", result))
   .catch(err => console.error("❌ Failed to store log:", err));
 }
+
 const responseBox = document.getElementById("responseBox");
 const questionInput = document.getElementById("questionInput");
 const historyList = document.getElementById("historyList");
@@ -202,8 +201,7 @@ window.registerAccount = function () {
     return;
   }
 
-  // ✅ Restore the missing cannon fire
-  logToSheet(name, email, "register");
+  logToServer(name, email, "register");
 
   alert("✅ 註冊成功！請前往登入畫面。");
   document.getElementById("registerBox").style.display = "none";
@@ -225,7 +223,7 @@ window.loginCheck = function () {
   }
 
   document.getElementById("authOverlay").style.display = "none";
-  logToSheet("Student", email, "login");
+  logToServer("Student", email, "login");
 };
 
 window.logoutNow = function () {
@@ -236,7 +234,7 @@ window.logoutNow = function () {
     return;
   }
 
-  logToSheet("Student", email, "logout");
+  logToServer("Student", email, "logout");
   alert("👋 登出已記錄。請關閉或重新登入。");
 
   document.getElementById("authOverlay").style.display = "flex";
