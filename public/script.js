@@ -3,6 +3,8 @@ console.log("🟢 script.js loaded successfully");
 const GOOGLE_SHEET_WEBHOOK = "https://script.google.com/macros/s/AKfycbzLpaZZe4pZR2ufpn640pliAK8epEMZVpVb2BGh4xjFrRQj12adoltRy91m9pxbpPIZAA/exec";
 
 function logToSheet(name, email, action) {
+  console.log("📤 logToSheet firing with:", { name, email, action }); // ← paste this here!
+
   fetch(GOOGLE_SHEET_WEBHOOK, {
     method: "POST",
     body: JSON.stringify({ name, email, action }),
