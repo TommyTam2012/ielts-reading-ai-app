@@ -74,21 +74,23 @@
   </style>
 </head>
 <body>
-  <!-- Registration + Login Overlay -->
+
+  <!-- Registration & Login Overlay -->
   <div id="authOverlay">
     <!-- Registration -->
     <div id="registerBox" style="display: flex; flex-direction: column; align-items: center;">
       <h2 style="margin-bottom: 20px; font-size: 24px; color: #003366;">📝 註冊新帳戶</h2>
-      <input id="regUser" type="text" placeholder="用戶名稱" />
-      <input id="regPass" type="password" placeholder="密碼" />
-      <button onclick="goToLogin()" style="margin-bottom: 10px;">註冊並前往登入</button>
+      <input id="regName" type="text" placeholder="👤 姓名" />
+      <input id="regEmail" type="email" placeholder="📧 電子郵件" />
+      <input id="regPass" type="password" placeholder="🔒 密碼" />
+      <button onclick="goToLogin()" style="margin-top: 10px;">註冊並前往登入</button>
     </div>
 
     <!-- Login -->
     <div id="loginBox" style="display: none; flex-direction: column; align-items: center;">
       <h2 style="margin-bottom: 20px; font-size: 24px; color: #003366;">🔐 登入以使用 TommySir 的 IELTS 雅思閱讀 AI 考試助手</h2>
-      <input id="loginUser" type="text" placeholder="用戶名稱" />
-      <input id="loginPass" type="password" placeholder="密碼" />
+      <input id="loginUser" type="email" placeholder="📧 電子郵件" />
+      <input id="loginPass" type="password" placeholder="🔒 密碼" />
       <button onclick="loginCheck()">登入</button>
     </div>
   </div>
@@ -139,36 +141,5 @@
   </main>
 
   <script src="/script.js"></script>
-  <script>
-    function goToLogin() {
-      const regUser = document.getElementById("regUser").value;
-      const regPass = document.getElementById("regPass").value;
-
-      if (!regUser || !regPass) {
-        alert("請輸入完整的註冊資料！");
-        return;
-      }
-
-      localStorage.setItem("registeredUser", regUser);
-      localStorage.setItem("registeredPass", regPass);
-
-      document.getElementById("registerBox").style.display = "none";
-      document.getElementById("loginBox").style.display = "flex";
-    }
-
-    function loginCheck() {
-      const user = document.getElementById("loginUser").value;
-      const pass = document.getElementById("loginPass").value;
-
-      const regUser = localStorage.getItem("registeredUser");
-      const regPass = localStorage.getItem("registeredPass");
-
-      if (user === regUser && pass === regPass) {
-        document.getElementById("authOverlay").style.display = "none";
-      } else {
-        alert("登入失敗，請確認用戶名稱與密碼是否正確！");
-      }
-    }
-  </script>
 </body>
 </html>
