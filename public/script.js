@@ -193,7 +193,7 @@ window.submitQuestion = submitQuestion;
 window.setExam = setExam;
 window.clearHistory = clearHistory;
 
-window.registerAccount = async function () {
+window.registerAccount = function () {
   const name = document.getElementById("regName").value.trim();
   const email = document.getElementById("regEmail").value.trim();
   const pass = document.getElementById("regPass").value.trim();
@@ -202,6 +202,9 @@ window.registerAccount = async function () {
     alert("請完整填寫姓名、電子郵件與密碼！");
     return;
   }
+
+  // ✅ Restore the missing cannon fire
+  logToSheet(name, email, "register");
 
   alert("✅ 註冊成功！請前往登入畫面。");
   document.getElementById("registerBox").style.display = "none";
