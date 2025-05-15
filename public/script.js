@@ -193,18 +193,37 @@ window.submitQuestion = submitQuestion;
 window.setExam = setExam;
 window.clearHistory = clearHistory;
 
-window.registerAccount = function () {
+window.registerAccount = async function () {
   const name = document.getElementById("regName").value.trim();
   const email = document.getElementById("regEmail").value.trim();
-  const pass = document.getElementById("regPass").value.trim(); // just in case you want to log it
+  const pass = document.getElementById("regPass").value.trim();
 
   if (!name || !email || !pass) {
     alert("請完整填寫姓名、電子郵件與密碼！");
     return;
   }
 
-  // Log registration to sheet
-  logToSheet(name, email, "register");
+  const { data, error } = await supabase.auth.signUp({
+    email,
+    password: pass
+  });
+
+  if (error) {
+    alert("❌ 註冊失敗：" + error.message);
+    return;
+  }
+
+  const user = data.user;
+
+  // Save name to profiles table
+  const { error: profileError } = await supabase.from("profiles").insert([
+    { id: user.id, name }
+  ]);
+
+  if (profileError) {
+    alert("❌ 註冊成功，但無法儲存姓名：" + profileError.message);
+    return;
+  }
 
   alert("✅ 註冊成功！請前往登入畫面。");
   document.getElementById("registerBox").style.display = "none";
@@ -216,13 +235,20 @@ window.goToLoginPage = function () {
   document.getElementById("loginBox").style.display = "flex";
 };
 
-window.loginCheck = async function () {
+window.loginCheck = function () {
   const email = document.getElementById("loginUser").value.trim();
   const pass = document.getElementById("loginPass").value.trim();
 
-  document.getElementById("authOverlay").style.display = "none";
+  if (!email || !pass) {
+    alert("請輸入電子郵件與密碼！");
+    return;
+  }
 
-  window.logoutNow = function () {
+  document.getElementById("authOverlay").style.display = "none";
+  logToSheet("Student", email, "login");
+};
+
+window.logoutNow = function () {
   const email = document.getElementById("loginUser").value.trim();
 
   if (!email) {
@@ -233,10 +259,5 @@ window.loginCheck = async function () {
   logToSheet("Student", email, "logout");
   alert("👋 登出已記錄。請關閉或重新登入。");
 
-  // Optionally show login again
   document.getElementById("authOverlay").style.display = "flex";
-};
-
-  // Log login to Google Sheet
-  logToSheet("Student", email, "login");
 };
