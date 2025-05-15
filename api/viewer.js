@@ -19,8 +19,10 @@ export default async function handler(req, res) {
       const valueData = await valueRes.json();
 
       try {
-        // Parse the stringified JSON in valueData.result
-        const parsed = JSON.parse(valueData.result);
+        // ✅ Apply double parse here
+        const parsed = typeof valueData.result === 'string'
+          ? JSON.parse(JSON.parse(valueData.result))
+          : valueData.result;
 
         return {
           key,
