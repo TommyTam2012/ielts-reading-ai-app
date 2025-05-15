@@ -1,6 +1,4 @@
-import handler from '../../api/viewer';
-
-export default async function (req, res) {
+export default async function handler(req, res) {
   const UPSTASH_REST_URL = 'https://firm-imp-16671.upstash.io';
   const UPSTASH_TOKEN = 'AUEfAAIjcDFkMTBkNTFmYmIzM2I0ZGQwYTUzODk5NDI2YmZkNTMwZHAxMA';
 
@@ -21,12 +19,12 @@ export default async function (req, res) {
       const valueData = await valueRes.json();
 
       try {
-        const parsed = JSON.parse(valueData.result); // <-- Fix here!
+        const parsed = JSON.parse(valueData.result);
         return {
           key,
           email: parsed.email,
           action: parsed.action,
-          timestamp: parsed.timestamp, // should be numeric
+          timestamp: parsed.timestamp,
         };
       } catch {
         return { key, error: 'Parse error' };
