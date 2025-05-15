@@ -78,13 +78,14 @@
   <!-- Registration & Login Overlay -->
   <div id="authOverlay">
     <!-- Registration -->
-    <div id="registerBox" style="display: flex; flex-direction: column; align-items: center;">
-      <h2 style="margin-bottom: 20px; font-size: 24px; color: #003366;">📝 註冊新帳戶</h2>
-      <input id="regName" type="text" placeholder="👤 姓名" />
-      <input id="regEmail" type="email" placeholder="📧 電子郵件" />
-      <input id="regPass" type="password" placeholder="🔒 密碼" />
-      <button onclick="goToLogin()" style="margin-top: 10px;">註冊並前往登入</button>
-    </div>
+<div id="registerBox" style="display: flex; flex-direction: column; align-items: center;">
+  <h2 style="margin-bottom: 20px; font-size: 24px; color: #003366;">📝 註冊新帳戶</h2>
+  <input id="regName" type="text" placeholder="👤 姓名" />
+  <input id="regEmail" type="email" placeholder="📧 電子郵件" />
+  <input id="regPass" type="password" placeholder="🔒 密碼" />
+  <button onclick="registerAccount()" style="margin-top: 10px;">註冊</button>
+  <button onclick="goToLoginPage()" style="margin-top: 8px; background-color: #888;">前往登入</button>
+</div>
 
     <!-- Login -->
     <div id="loginBox" style="display: none; flex-direction: column; align-items: center;">
