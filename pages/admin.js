@@ -40,14 +40,14 @@ export default function AdminLogViewer() {
       ) : (
         <table style={styles.table}>
           <thead>
-            <tr>
-              <th>🗝️ Key</th>
-              <th>📧 Email</th>
-              <th>📄 Action</th>
-              <th>🕒 Time (HKT)</th>
-              <th>🗑️ Delete</th>
-            </tr>
-          </thead>
+  <tr>
+    <th style={styles.th}>🗝️ Key</th>
+    <th style={styles.th}>📧 Email</th>
+    <th style={styles.th}>📄 Action</th>
+    <th style={styles.th}>🕒 Time (HKT)</th>
+    <th style={styles.th}>🗑️ Delete</th>
+  </tr>
+</thead>
           <tbody>
             {logs.map((log, i) => (
               <tr key={i}>
