@@ -19,18 +19,9 @@ export default async function handler(req, res) {
         });
 
         const valueData = await valueRes.json();
-        let parsed;
-
-        // 🧠 Smart fallback parser
-        if (typeof valueData.result === 'string') {
-          try {
-            parsed = JSON.parse(valueData.result); // Try single parse
-          } catch {
-            parsed = JSON.parse(JSON.parse(valueData.result)); // Try double parse
-          }
-        } else {
-          parsed = valueData.result;
-        }
+        const parsed = typeof valueData.result === 'string'
+          ? JSON.parse(valueData.result)
+          : valueData.result;
 
         return {
           key,
@@ -38,7 +29,7 @@ export default async function handler(req, res) {
           action: parsed.action || 'Unknown',
           timestamp: parsed.timestamp || Date.now(),
         };
-      } catch (err) {
+      } catch {
         return { key, error: 'Parse error' };
       }
     })
