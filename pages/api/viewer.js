@@ -13,23 +13,24 @@ export default async function handler(req, res) {
 
   const logs = await Promise.all(
     keysData.result.map(async (key) => {
-      try {
-        const valueRes = await fetch(`${UPSTASH_REST_URL}/get/${key}`, {
-          headers: { Authorization: `Bearer ${UPSTASH_TOKEN}` },
-        });
+      const valueRes = await fetch(`${UPSTASH_REST_URL}/get/${key}`, {
+        headers: { Authorization: `Bearer ${UPSTASH_TOKEN}` },
+      });
+      const valueData = await valueRes.json();
 
-        const valueData = await valueRes.json();
+      try {
+        // ✅ Apply double parse here
         const parsed = typeof valueData.result === 'string'
-          ? JSON.parse(valueData.result)
+          ? JSON.parse(JSON.parse(valueData.result))
           : valueData.result;
 
         return {
           key,
           email: parsed.email || 'Unknown',
           action: parsed.action || 'Unknown',
-          timestamp: parsed.timestamp || Date.now(),
+          timestamp: Number(parsed.timestamp) || Date.now(),
         };
-      } catch {
+      } catch (err) {
         return { key, error: 'Parse error' };
       }
     })
