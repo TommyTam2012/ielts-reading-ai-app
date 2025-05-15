@@ -203,11 +203,6 @@ window.registerAccount = async function () {
     return;
   }
 
-  if (profileError) {
-    alert("❌ 註冊成功，但無法儲存姓名：" + profileError.message);
-    return;
-  }
-
   alert("✅ 註冊成功！請前往登入畫面。");
   document.getElementById("registerBox").style.display = "none";
   document.getElementById("loginBox").style.display = "flex";
