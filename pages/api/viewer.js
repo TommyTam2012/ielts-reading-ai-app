@@ -16,8 +16,10 @@ export default async function handler(req, res) {
 
   const logs = keysData.result.map((key) => {
     try {
-      const [_, email, rawTs] = key.split(':');
-      const timestamp = new Date(Number(rawTs)).toISOString();
+      const parts = key.split(':');
+      const email = parts[1] || 'Unknown';
+      const millis = Number(parts[2]) || Date.now();
+      const timestamp = new Date(millis).toISOString();
       return { email, timestamp };
     } catch {
       return { email: 'ParseError', timestamp: new Date().toISOString() };
