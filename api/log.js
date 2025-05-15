@@ -12,7 +12,7 @@ export default async function handler(req, res) {
   const payload = {
     method: 'POST',
     headers: {
-      Authorization: 'Bearer YOUR_UPSTASH_TOKEN',
+      Authorization: 'Bearer AUEfAAIjcDFkMTBkNTFmYmIzM2I0ZGQwYTUzODk5NDI2YmZkNTMwZHAxMA',
       'Content-Type': 'application/json'
     },
     body: JSON.stringify({
@@ -26,8 +26,7 @@ export default async function handler(req, res) {
   };
 
   const key = `log:${email}:${Date.now()}`;
-  const response = await fetch(`https://YOUR_UPSTASH_REST_URL/set/${key}`, payload);
-
+  const response = await fetch(`https://firm-imp-16671.upstash.io/set/${key}`, payload);
   const data = await response.json();
 
   return res.status(200).json({ success: true, stored: key, data });
