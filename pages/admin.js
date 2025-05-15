@@ -31,23 +31,23 @@ export default function AdminLogViewer() {
   }
 
   return (
-    <div style={styles.container}>
-      <h1 style={styles.header}>📖 Admin Log Viewer</h1>
+    <div className="admin-container">
+      <h1 className="admin-header">📖 Admin Log Viewer</h1>
       {loading ? (
         <p>Loading logs...</p>
       ) : logs.length === 0 ? (
         <p>No logs found.</p>
       ) : (
-        <table style={styles.table}>
+        <table className="admin-table">
           <thead>
-  <tr>
-    <th style={styles.th}>🗝️ Key</th>
-    <th style={styles.th}>📧 Email</th>
-    <th style={styles.th}>📄 Action</th>
-    <th style={styles.th}>🕒 Time (HKT)</th>
-    <th style={styles.th}>🗑️ Delete</th>
-  </tr>
-</thead>
+            <tr>
+              <th>🗝️ Key</th>
+              <th>📧 Email</th>
+              <th>📄 Action</th>
+              <th>🕒 Time (HKT)</th>
+              <th>🗑️ Delete</th>
+            </tr>
+          </thead>
           <tbody>
             {logs.map((log, i) => (
               <tr key={i}>
@@ -66,10 +66,7 @@ export default function AdminLogViewer() {
                   })}
                 </td>
                 <td>
-                  <button
-                    style={styles.deleteBtn}
-                    onClick={() => handleDelete(log.key)}
-                  >
+                  <button className="delete-btn" onClick={() => handleDelete(log.key)}>
                     Delete
                   </button>
                 </td>
@@ -81,31 +78,3 @@ export default function AdminLogViewer() {
     </div>
   );
 }
-
-const styles = {
-  container: {
-    fontFamily: 'sans-serif',
-    padding: '40px',
-    maxWidth: '960px',
-    margin: '0 auto',
-  },
-  header: {
-    fontSize: '28px',
-    marginBottom: '20px',
-    color: '#003366',
-  },
-  table: {
-    width: '100%',
-    borderCollapse: 'collapse',
-    background: '#fefefe',
-    boxShadow: '0 0 8px rgba(0,0,0,0.05)',
-  },
-  deleteBtn: {
-    padding: '4px 10px',
-    color: 'white',
-    background: '#cc0000',
-    border: 'none',
-    borderRadius: '6px',
-    cursor: 'pointer',
-  },
-};
