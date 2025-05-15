@@ -11,35 +11,17 @@ export default async function handler(req, res) {
     return res.status(200).json({ logs: [] });
   }
 
-  const logs = await Promise.all(
-    keysData.result.map(async (key) => {
-      try {
-        const valueRes = await fetch(`${UPSTASH_REST_URL}/get/${key}`, {
-          headers: { Authorization: `Bearer ${UPSTASH_TOKEN}` },
-        });
-
-        const valueData = await valueRes.json();
-
-        // ✅ Double unwrap: outer { value: "..." } → inner { ... }
-        const outer = typeof valueData.result === 'string'
-          ? JSON.parse(valueData.result)
-          : valueData.result;
-
-        const parsed = typeof outer?.value === 'string'
-          ? JSON.parse(outer.value)
-          : outer.value;
-
-        return {
-          key,
-          email: parsed.email || 'Unknown',
-          action: parsed.action || 'Unknown',
-          timestamp: parsed.timestamp || Date.now(),
-        };
-      } catch (err) {
-        return { key, error: 'Parse error' };
-      }
-    })
-  );
+  const logs = keysData.result.map((key) => {
+    try {
+      const parts = key.split(':');
+      const email = parts[1] || 'Unknown';
+      const millis = Number(parts[2]) || Date.now();
+      const timestamp = new Date(millis).toISOString();
+      return { key, email, timestamp };
+    } catch {
+      return { key, email: 'ParseError', timestamp: new Date().toISOString() };
+    }
+  });
 
   res.status(200).json({ logs });
 }
