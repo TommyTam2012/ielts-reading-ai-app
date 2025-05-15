@@ -54,7 +54,9 @@ export default function AdminLogViewer() {
                 <td>{log.key}</td>
                 <td>{log.email || '-'}</td>
                 <td>{log.action || '-'}</td>
-                <td>{new Date(log.timestamp).toISOString()}</td>
+                <td>
+  {new Date(Number(log.timestamp)).toLocaleString('en-HK', {
+    timeZone: 'Asia/Hong_Kong',
                     year: 'numeric',
                     month: 'short',
                     day: 'numeric',
