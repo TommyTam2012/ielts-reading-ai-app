@@ -1,11 +1,3 @@
-const SUPABASE_URL = "https://your-project-id.supabase.co"; // ← replace with your actual URL
-const SUPABASE_ANON_KEY = "your-anon-public-key";           // ← replace with your actual key
-
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-supabase.auth.getSession().then(({ data: { session } }) => {
-  console.log("🧪 Supabase connected. Session:", session);
-});
 console.log("🟢 script.js loaded successfully");
 
 const responseBox = document.getElementById("responseBox");
@@ -188,7 +180,7 @@ window.submitQuestion = submitQuestion;
 window.setExam = setExam;
 window.clearHistory = clearHistory;
 
-window.registerAccount = function () {
+window.registerAccount = async function () {
   const name = document.getElementById("regName").value.trim();
   const email = document.getElementById("regEmail").value.trim();
   const pass = document.getElementById("regPass").value.trim();
@@ -198,11 +190,31 @@ window.registerAccount = function () {
     return;
   }
 
-  localStorage.setItem("registeredName", name);
-  localStorage.setItem("registeredEmail", email.toLowerCase());
-  localStorage.setItem("registeredPass", pass);
+  const { data, error } = await supabase.auth.signUp({
+    email,
+    password: pass
+  });
+
+  if (error) {
+    alert("❌ 註冊失敗：" + error.message);
+    return;
+  }
+
+  const user = data.user;
+
+  // Save name to profiles table
+  const { error: profileError } = await supabase.from("profiles").insert([
+    { id: user.id, name }
+  ]);
+
+  if (profileError) {
+    alert("❌ 註冊成功，但無法儲存姓名：" + profileError.message);
+    return;
+  }
 
   alert("✅ 註冊成功！請前往登入畫面。");
+  document.getElementById("registerBox").style.display = "none";
+  document.getElementById("loginBox").style.display = "flex";
 };
 
 window.goToLoginPage = function () {
@@ -210,17 +222,20 @@ window.goToLoginPage = function () {
   document.getElementById("loginBox").style.display = "flex";
 };
 
-window.loginCheck = function () {
-  const userEmail = document.getElementById("loginUser").value.trim().toLowerCase();
-  const userPass = document.getElementById("loginPass").value.trim();
+window.loginCheck = async function () {
+  const email = document.getElementById("loginUser").value.trim();
+  const pass = document.getElementById("loginPass").value.trim();
 
-  const savedEmail = localStorage.getItem("registeredEmail");
-  const savedPass = localStorage.getItem("registeredPass");
+  const { data, error } = await supabase.auth.signInWithPassword({
+    email,
+    password: pass
+  });
 
-  if (userEmail === savedEmail && userPass === savedPass) {
-    document.getElementById("authOverlay").style.display = "none";
-    console.log(`👋 Welcome back, ${localStorage.getItem("registeredName")}`);
-  } else {
-    alert("登入失敗，請確認電子郵件與密碼是否正確！");
+  if (error) {
+    alert("❌ 登入失敗：" + error.message);
+    return;
   }
+
+  document.getElementById("authOverlay").style.display = "none";
+  console.log("👋 Welcome,", data.user.email);
 };
