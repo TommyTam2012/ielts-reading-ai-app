@@ -3,17 +3,17 @@ console.log("🟢 script.js loaded successfully");
 const GOOGLE_SHEET_WEBHOOK = "https://script.google.com/macros/s/AKfycbzLpaZZe4pZR2ufpn640pliAK8epEMZVpVb2BGh4xjFrRQj12adoltRy91m9pxbpPIZAA/exec";
 
 function logToSheet(name, email, action) {
-  console.log("📤 logToSheet firing with:", { name, email, action }); // ← paste this here!
+  const params = new URLSearchParams({ name, email, action });
+  const url = `${GOOGLE_SHEET_WEBHOOK}?${params.toString()}`;
 
-  fetch(GOOGLE_SHEET_WEBHOOK, {
-    method: "POST",
-    body: JSON.stringify({ name, email, action }),
-    headers: { "Content-Type": "application/json" }
-  })
-  .then(res => res.text())
-  .then(result => console.log("📄 Sheet logged:", result))
-  .catch(err => console.error("❌ Sheet log failed:", err));
+  console.log("📤 logToSheet (GET mode):", url);
+
+  fetch(url)
+    .then(res => res.text())
+    .then(result => console.log("📄 Sheet logged:", result))
+    .catch(err => console.error("❌ Sheet log failed:", err));
 }
+
 
 const responseBox = document.getElementById("responseBox");
 const questionInput = document.getElementById("questionInput");
