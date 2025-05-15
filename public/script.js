@@ -212,3 +212,5 @@ window.loginCheck = function () {
     alert("登入失敗，請確認電子郵件與密碼是否正確！");
   }
 };
+
+
