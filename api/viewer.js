@@ -19,14 +19,16 @@ export default async function handler(req, res) {
       const valueData = await valueRes.json();
 
       try {
+        // Parse the stringified JSON in valueData.result
         const parsed = JSON.parse(valueData.result);
+
         return {
           key,
-          email: parsed.email,
-          action: parsed.action,
-          timestamp: parsed.timestamp,
+          email: parsed.email || 'Unknown',
+          action: parsed.action || 'Unknown',
+          timestamp: Number(parsed.timestamp) || Date.now(),
         };
-      } catch {
+      } catch (err) {
         return { key, error: 'Parse error' };
       }
     })
