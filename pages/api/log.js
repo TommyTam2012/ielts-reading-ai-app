@@ -16,12 +16,10 @@ export default async function handler(req, res) {
       'Content-Type': 'application/json'
     },
     body: JSON.stringify({
-      value: JSON.stringify({
-        name,
-        email,
-        action,
-        timestamp: new Date().toISOString()
-      })
+      name,
+      email,
+      action,
+      timestamp: new Date().toISOString()
     })
   };
 
