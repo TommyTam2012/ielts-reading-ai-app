@@ -20,21 +20,22 @@ export default async function handler(req, res) {
 
         const valueData = await valueRes.json();
 
+        // ✅ Double unwrap: outer { value: "..." } → inner { ... }
         const outer = typeof valueData.result === 'string'
           ? JSON.parse(valueData.result)
           : valueData.result;
 
-        const parsed = typeof outer.value === 'string'
+        const parsed = typeof outer?.value === 'string'
           ? JSON.parse(outer.value)
           : outer.value;
 
         return {
           key,
-          email: parsed.email,
-          action: parsed.action,
-          timestamp: parsed.timestamp,
+          email: parsed.email || 'Unknown',
+          action: parsed.action || 'Unknown',
+          timestamp: parsed.timestamp || Date.now(),
         };
-      } catch {
+      } catch (err) {
         return { key, error: 'Parse error' };
       }
     })
