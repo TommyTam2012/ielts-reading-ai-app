@@ -1,6 +1,6 @@
 console.log("🟢 script.js loaded successfully");
 
-// ✅ Replaces server call with direct Upstash logging
+// ✅ Logging directly to Upstash
 async function logToUpstash(name, email, action = "login") {
   const hkTime = new Date().toLocaleString("en-US", {
     timeZone: "Asia/Hong_Kong"
@@ -126,7 +126,7 @@ function addToHistory(question, answer) {
 }
 
 function detectLang(text) {
-  return /[\u4e00-\u9fa5]/.test(text) ? "zh-CN" : "en-GB";
+  return /[一-龥]/.test(text) ? "zh-CN" : "en-GB";
 }
 
 function getVoiceForLang(lang) {
