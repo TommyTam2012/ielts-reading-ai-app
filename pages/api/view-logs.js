@@ -3,11 +3,9 @@ export default async function handler(req, res) {
   const token = process.env.UPSTASH_REDIS_REST_TOKEN;
 
   try {
-    // Step 1: Get all log keys (e.g., log:171584643...) from Redis
+    // Get all Redis keys starting with log:
     const keysRes = await fetch(`${baseUrl}/keys/log:*`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
+      headers: { Authorization: `Bearer ${token}` },
     });
 
     const keysData = await keysRes.json();
@@ -17,7 +15,7 @@ export default async function handler(req, res) {
       return res.status(200).json({ logs: [] });
     }
 
-    // Step 2: Fetch all log values
+    // Get all log entries
     const logs = [];
     for (const key of keys) {
       const valueRes = await fetch(`${baseUrl}/get/${key}`, {
@@ -30,12 +28,12 @@ export default async function handler(req, res) {
       }
     }
 
-    // Optional: sort logs newest to oldest
+    // Sort by most recent first
     logs.sort((a, b) => b.key.localeCompare(a.key));
 
     return res.status(200).json({ logs });
   } catch (err) {
-    console.error('❌ View logs failed:', err);
-    return res.status(500).json({ error: 'Failed to fetch logs' });
+    console.error('❌ Failed to view logs:', err);
+    return res.status(500).json({ error: 'Error retrieving logs' });
   }
 }
