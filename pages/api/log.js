@@ -1,27 +1,40 @@
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Only POST allowed' });
+    return res.status(405).json({ error: 'Only POST requests allowed' });
   }
 
   const { name, email, action } = req.body;
 
-  if (!email) {
-    return res.status(400).json({ error: 'Missing email' });
+  if (!name || !email || !action) {
+    return res.status(400).json({ error: 'Missing required fields' });
   }
 
-  const key = `log:${email}:${Date.now()}`;
+  // Get time in Hong Kong Standard Time (UTC+8)
+  const hkTime = new Date().toLocaleString('en-US', {
+    timeZone: 'Asia/Hong_Kong',
+  });
 
-  const payload = {
-    method: 'POST',
-    headers: {
-      Authorization: 'Bearer AUEfAAIjcDFkMTBkNTFmYmIzM2I0ZGQwYTUzODk5NDI2YmZkNTMwZHAxMA',
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({ name, email, action, timestamp: Date.now() })
-  };
+  const logKey = `log:${Date.now()}`;
+  const logValue = JSON.stringify({ name, email, action, time: hkTime });
 
-  const upstashRes = await fetch(`https://firm-imp-16671.upstash.io/set/${key}`, payload);
-  const data = await upstashRes.json();
+  try {
+    const response = await fetch(`${process.env.UPSTASH_REDIS_REST_URL}/set/${logKey}`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${process.env.UPSTASH_REDIS_REST_TOKEN}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(logValue),
+    });
 
-  return res.status(200).json({ success: true, key, data });
+    const result = await response.json();
+    if (!response.ok) {
+      throw new Error(result.error || 'Unknown error saving log');
+    }
+
+    res.status(200).json({ success: true, logKey });
+  } catch (err) {
+    console.error('❌ Redis Error:', err.message);
+    res.status(500).json({ error: err.message });
+  }
 }
