@@ -1,30 +1,41 @@
 export default async function handler(req, res) {
-  const UPSTASH_REST_URL = 'https://firm-imp-16671.upstash.io';
-  const UPSTASH_TOKEN = 'AUEfAAIjcDFkMTBkNTFmYmIzM2I0ZGQwYTUzODk5NDI2YmZkNTMwZHAxMA';
+  const baseUrl = process.env.UPSTASH_REDIS_REST_URL;
+  const token = process.env.UPSTASH_REDIS_REST_TOKEN;
 
-  const response = await fetch(`${UPSTASH_REST_URL}/keys/log:*`, {
-    headers: {
-      Authorization: `Bearer ${UPSTASH_TOKEN}`,
-    },
-  });
+  try {
+    // Step 1: Get all log keys (e.g., log:171584643...) from Redis
+    const keysRes = await fetch(`${baseUrl}/keys/log:*`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
 
-  const keysData = await response.json();
+    const keysData = await keysRes.json();
+    const keys = keysData.result || [];
 
-  if (!keysData.result || !Array.isArray(keysData.result)) {
-    return res.status(200).json({ logs: [] });
-  }
-
-  const logs = keysData.result.map((key) => {
-    try {
-      const parts = key.split(':');
-      const email = parts[1] || 'Unknown';
-      const millis = Number(parts[2]) || Date.now();
-      const timestamp = new Date(millis).toISOString();
-      return { email, timestamp };
-    } catch {
-      return { email: 'ParseError', timestamp: new Date().toISOString() };
+    if (keys.length === 0) {
+      return res.status(200).json({ logs: [] });
     }
-  });
 
-  return res.status(200).json({ logs });
+    // Step 2: Fetch all log values
+    const logs = [];
+    for (const key of keys) {
+      const valueRes = await fetch(`${baseUrl}/get/${key}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      const valueData = await valueRes.json();
+      if (valueData.result) {
+        logs.push({ key, ...JSON.parse(valueData.result) });
+      }
+    }
+
+    // Optional: sort logs newest to oldest
+    logs.sort((a, b) => b.key.localeCompare(a.key));
+
+    return res.status(200).json({ logs });
+  } catch (err) {
+    console.error('❌ View logs failed:', err);
+    return res.status(500).json({ error: 'Failed to fetch logs' });
+  }
 }
