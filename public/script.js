@@ -1,20 +1,35 @@
 console.log("🟢 script.js loaded successfully");
 
-function logToServer(name, email, action) {
-  fetch("/api/log", {
-    method: "POST",
-    body: JSON.stringify({ name, email, action }),
-    headers: { "Content-Type": "application/json" }
-  })
-  .then(async res => {
-    if (!res.ok) {
+// ✅ Replaces server call with direct Upstash logging
+async function logToUpstash(name, email, action = "login") {
+  const hkTime = new Date().toLocaleString("en-US", {
+    timeZone: "Asia/Hong_Kong"
+  });
+
+  const logKey = `log:${Date.now()}`;
+  const logValue = JSON.stringify({ name, email, action, time: hkTime });
+
+  const url = "https://firm-imp-16671.upstash.io/set/" + logKey;
+
+  try {
+    const res = await fetch(url, {
+      method: "POST",
+      headers: {
+        Authorization: "Bearer AUEfAAIjcDFkMTBkNTFmYmIzM2I0ZGQwYTUzODk5NDI2YmZkNTMwZHAxMA",
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(logValue)
+    });
+
+    if (res.ok) {
+      console.log("✅ Log stored in Upstash");
+    } else {
       const text = await res.text();
-      throw new Error(`❌ Server responded with ${res.status}: ${text}`);
+      throw new Error(`❌ Failed to log: ${text}`);
     }
-    return res.json();
-  })
-  .then(result => console.log("📦 Log stored:", result))
-  .catch(err => console.error("❌ Failed to store log:", err));
+  } catch (err) {
+    console.error("❌ Network error:", err);
+  }
 }
 
 const responseBox = document.getElementById("responseBox");
@@ -207,7 +222,7 @@ window.registerAccount = function () {
     return;
   }
 
-  logToServer(name, email, "register");
+  logToUpstash(name, email, "register");
 
   alert("✅ 註冊成功！請前往登入畫面。");
   document.getElementById("registerBox").style.display = "none";
@@ -229,7 +244,7 @@ window.loginCheck = function () {
   }
 
   document.getElementById("authOverlay").style.display = "none";
-  logToServer("Student", email, "login");
+  logToUpstash("Student", email, "login");
 };
 
 window.logoutNow = function () {
@@ -240,7 +255,7 @@ window.logoutNow = function () {
     return;
   }
 
-  logToServer("Student", email, "logout");
+  logToUpstash("Student", email, "logout");
   alert("👋 登出已記錄。請關閉或重新登入。");
 
   document.getElementById("authOverlay").style.display = "flex";
