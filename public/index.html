@@ -6,7 +6,7 @@
   <title>IELTS 雅思閱讀 AI 考試助手</title>
   <link rel="stylesheet" href="/style.css" />
   <script>console.log("🧭 IELTS index.html loaded");</script>  
-<style>
+  <style>
     .exam-grid {
       display: flex;
       flex-wrap: wrap;
@@ -38,63 +38,9 @@
     .school-logo {
       height: 50px;
     }
-
-    /* Auth Overlay */
-    #authOverlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
-      background: rgba(255, 255, 255, 0.98);
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      z-index: 9999;
-      font-family: sans-serif;
-    }
-
-    #authOverlay input {
-      padding: 10px;
-      width: 250px;
-      margin-bottom: 10px;
-      border-radius: 5px;
-      border: 1px solid #ccc;
-    }
-
-    #authOverlay button {
-      padding: 10px 30px;
-      background-color: #003366;
-      color: white;
-      border: none;
-      border-radius: 5px;
-      font-size: 16px;
-    }
   </style>
 </head>
 <body>
-
-  <!-- Registration & Login Overlay -->
-  <div id="authOverlay">
-    <!-- Registration -->
-<div id="registerBox" style="display: flex; flex-direction: column; align-items: center;">
-  <h2 style="margin-bottom: 20px; font-size: 24px; color: #003366;">📝 註冊新帳戶</h2>
-  <input id="regName" type="text" placeholder="👤 姓名" />
-  <input id="regEmail" type="email" placeholder="📧 電子郵件" />
-  <input id="regPass" type="password" placeholder="🔒 密碼" />
-  <button onclick="registerAccount()" style="margin-top: 10px;">註冊</button>
-  <button onclick="goToLoginPage()" style="margin-top: 8px; background-color: #888;">前往登入</button>
-</div>
-
-    <!-- Login -->
-    <div id="loginBox" style="display: none; flex-direction: column; align-items: center;">
-      <h2 style="margin-bottom: 20px; font-size: 24px; color: #003366;">🔐 登入以使用 TommySir 的 IELTS 雅思閱讀 AI 考試助手</h2>
-      <input id="loginUser" type="email" placeholder="📧 電子郵件" />
-      <input id="loginPass" type="password" placeholder="🔒 密碼" />
-      <button onclick="loginCheck()">登入</button>
-    </div>
-  </div>
 
   <!-- Main App -->
   <header>
