@@ -155,13 +155,23 @@ function speakMixed(text) {
 }
 
 document.getElementById("ttsBtn")?.addEventListener("click", () => {
-  const english = responseBox.textContent.trim();
-  const chinese = translationBox.textContent.replace(/^🇨🇳 中文翻譯：/, "").trim();
-  speakMixed(`${english} ${chinese}`);
-});
+  function stripMarkdown(text) {
+  return text
+    .replace(/\*\*(.*?)\*\*/g, '$1')    // bold **text**
+    .replace(/\*(.*?)\*/g, '$1')        // italic *text*
+    .replace(/__(.*?)__/g, '$1')        // underline
+    .replace(/`(.*?)`/g, '$1')          // inline code
+    .replace(/\[(.*?)\]\(.*?\)/g, '$1') // [text](url)
+    .replace(/#+\s?(.*)/g, '$1')        // headers
+    .replace(/>\s?(.*)/g, '$1');        // blockquote
+}
 
-document.getElementById("stopTTSBtn")?.addEventListener("click", () => {
-  speechSynthesis.cancel();
+document.getElementById("ttsBtn")?.addEventListener("click", () => {
+  const rawEnglish = responseBox.textContent.trim();
+  const rawChinese = translationBox.textContent.replace(/^🇨🇳 中文翻譯：/, "").trim();
+  const cleanEnglish = stripMarkdown(rawEnglish);
+  const cleanChinese = stripMarkdown(rawChinese);
+  speakMixed(`${cleanEnglish} ${cleanChinese}`);
 });
 
 if (window.SpeechRecognition || window.webkitSpeechRecognition) {
