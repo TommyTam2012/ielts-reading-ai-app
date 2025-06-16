@@ -144,14 +144,17 @@ function getVoiceForLang(lang) {
 function chunkText(text, maxLength = 180) {
   const chunks = [];
   let current = '';
-  text.split(/(?<=[。.!?])/).forEach(part => {
+  const parts = text.match(/[^。！？.!?\n]+[。！？.!?\n]?/g) || [text];
+
+  for (const part of parts) {
     if ((current + part).length > maxLength) {
-      chunks.push(current.trim());
+      if (current) chunks.push(current.trim());
       current = part;
     } else {
       current += part;
     }
-  });
+  }
+
   if (current) chunks.push(current.trim());
   return chunks;
 }
@@ -162,18 +165,23 @@ function speakMixed(text) {
 
   function speakNext() {
     if (index >= segments.length) return;
+
     const segment = segments[index++];
     const lang = detectLang(segment);
     const utter = new SpeechSynthesisUtterance(segment);
     utter.lang = lang;
     utter.voice = getVoiceForLang(lang);
     utter.rate = 1;
-    utter.onend = speakNext;
+
+    utter.onend = () => {
+      setTimeout(speakNext, 250); // Delay avoids cut-off
+    };
+
     speechSynthesis.speak(utter);
   }
 
-  speechSynthesis.cancel(); // Clear queue
-  speakNext(); // Start
+  speechSynthesis.cancel(); // Reset any previous speech
+  setTimeout(() => speakNext(), 100); // Small start delay
 }
 
 document.getElementById("ttsBtn")?.addEventListener("click", () => {
@@ -189,14 +197,14 @@ document.getElementById("stopTTSBtn")?.addEventListener("click", () => {
 if (window.SpeechRecognition || window.webkitSpeechRecognition) {
   const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
   const recognition = new SpeechRecognition();
-  recognition.lang = "zh-CN"; // keep Chinese voice input
+  recognition.lang = "zh-CN";
   recognition.continuous = false;
   recognition.interimResults = false;
 
   let finalTranscript = "";
   let isHoldingMic = false;
   let restartCount = 0;
-  const maxRestarts = 3; // ~10 seconds total (3x3s)
+  const maxRestarts = 3;
 
   recognition.onstart = () => {
     micBtn.textContent = "🎤 正在录音... (松开发送)";
@@ -230,7 +238,6 @@ if (window.SpeechRecognition || window.webkitSpeechRecognition) {
     micBtn.textContent = "🎤 语音提问";
   };
 
-  // 🧲 Hold-to-speak logic
   micBtn.addEventListener("mousedown", () => {
     isHoldingMic = true;
     restartCount = 0;
