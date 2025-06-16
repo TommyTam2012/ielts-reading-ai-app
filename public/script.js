@@ -1,11 +1,8 @@
 console.log("🟢 script.js loaded successfully");
 
-// ✅ Logging directly to Upstash
+// ✅ Logging to Upstash
 async function logToUpstash(name, email, action = "login") {
-  const hkTime = new Date().toLocaleString("en-US", {
-    timeZone: "Asia/Hong_Kong"
-  });
-
+  const hkTime = new Date().toLocaleString("en-US", { timeZone: "Asia/Hong_Kong" });
   const logKey = `log:${Date.now()}`;
   const logValue = JSON.stringify({ name, email, action, time: hkTime });
 
@@ -125,6 +122,8 @@ function addToHistory(question, answer) {
   historyList.prepend(li);
 }
 
+// ----------------- 🔊 TTS Engine Below -----------------
+
 function detectLang(text) {
   return /[一-龥]/.test(text) ? "zh-CN" : "en-GB";
 }
@@ -159,40 +158,44 @@ function chunkText(text, maxLength = 180) {
   return chunks;
 }
 
-function speakMixed(text) {
-  const segments = chunkText(text);
-  let index = 0;
-
-  function speakNext() {
-    if (index >= segments.length) return;
-
-    const segment = segments[index++];
-    const lang = detectLang(segment);
-    const utter = new SpeechSynthesisUtterance(segment);
-    utter.lang = lang;
-    utter.voice = getVoiceForLang(lang);
-    utter.rate = 1;
-
-    utter.onend = () => {
-      setTimeout(speakNext, 250); // Delay avoids cut-off
-    };
-
-    speechSynthesis.speak(utter);
+async function speakTextChunks(chunks, lang) {
+  for (let i = 0; i < chunks.length; i++) {
+    await new Promise(resolve => {
+      const utter = new SpeechSynthesisUtterance(chunks[i]);
+      utter.lang = lang;
+      utter.voice = getVoiceForLang(lang);
+      utter.rate = 1;
+      utter.onend = () => setTimeout(resolve, 250);
+      speechSynthesis.speak(utter);
+    });
   }
+}
 
-  speechSynthesis.cancel(); // Reset any previous speech
-  setTimeout(() => speakNext(), 100); // Small start delay
+async function speakMixed() {
+  speechSynthesis.cancel();
+
+  const english = responseBox.textContent.trim();
+  const chinese = translationBox.textContent.replace(/^🇨🇳 中文翻譯：/, "").trim();
+
+  const engChunks = chunkText(english);
+  const zhChunks = chunkText(chinese);
+
+  await speakTextChunks(engChunks, "en-GB");
+
+  setTimeout(() => {
+    speakTextChunks(zhChunks, "zh-CN");
+  }, 500);
 }
 
 document.getElementById("ttsBtn")?.addEventListener("click", () => {
-  const english = responseBox.textContent.trim();
-  const chinese = translationBox.textContent.replace(/^🇨🇳 中文翻譯：/, "").trim();
-  speakMixed(`${english} ${chinese}`);
+  speakMixed();
 });
 
 document.getElementById("stopTTSBtn")?.addEventListener("click", () => {
   speechSynthesis.cancel();
 });
+
+// ----------------- 🎤 Voice Input -----------------
 
 if (window.SpeechRecognition || window.webkitSpeechRecognition) {
   const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
