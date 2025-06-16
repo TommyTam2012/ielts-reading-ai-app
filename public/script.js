@@ -129,13 +129,35 @@ function detectLang(text) {
   return /[一-龥]/.test(text) ? "zh-CN" : "en-GB";
 }
 
+let cachedVoices = [];
+window.speechSynthesis.onvoiceschanged = () => {
+  cachedVoices = speechSynthesis.getVoices();
+};
+
 function getVoiceForLang(lang) {
-  const voices = speechSynthesis.getVoices();
-  return voices.find(v => v.lang === lang) || voices.find(v => v.name.includes(lang.includes("zh") ? "普通话" : "English"));
+  if (!cachedVoices.length) cachedVoices = speechSynthesis.getVoices();
+  return cachedVoices.find(v => v.lang === lang)
+    || cachedVoices.find(v => v.name.includes(lang.includes("zh") ? "普通话" : "English"))
+    || cachedVoices[0];
+}
+
+function chunkText(text, maxLength = 180) {
+  const chunks = [];
+  let current = '';
+  text.split(/(?<=[。.!?])/).forEach(part => {
+    if ((current + part).length > maxLength) {
+      chunks.push(current.trim());
+      current = part;
+    } else {
+      current += part;
+    }
+  });
+  if (current) chunks.push(current.trim());
+  return chunks;
 }
 
 function speakMixed(text) {
-  const segments = text.split(/(?<=[。.!?])/).map(s => s.trim()).filter(Boolean);
+  const segments = chunkText(text);
   let index = 0;
 
   function speakNext() {
@@ -150,8 +172,8 @@ function speakMixed(text) {
     speechSynthesis.speak(utter);
   }
 
-  speechSynthesis.cancel();
-  speakNext();
+  speechSynthesis.cancel(); // Clear queue
+  speakNext(); // Start
 }
 
 document.getElementById("ttsBtn")?.addEventListener("click", () => {
@@ -233,6 +255,7 @@ if (window.SpeechRecognition || window.webkitSpeechRecognition) {
     recognition.stop();
   });
 }
+
 window.submitQuestion = submitQuestion;
 window.setExam = setExam;
 window.clearHistory = clearHistory;
