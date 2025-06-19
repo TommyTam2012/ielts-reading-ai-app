@@ -106,6 +106,7 @@ Only summarize the passage if the student requests it explicitly.
       const translated = data.translated || "❌ 無法翻譯為中文。";
       responseBox.textContent = answer;
       translationBox.textContent = `🇨🇳 中文翻譯：${translated}`;
+      speakWithMyVoice(answer); // ✅ Use cloned voice here
       addToHistory(question, `${answer}<br><em>🇨🇳 中文翻譯：</em>${translated}`);
     })
     .catch(err => {
@@ -122,8 +123,29 @@ function addToHistory(question, answer) {
   historyList.prepend(li);
 }
 
-// ----------------- 🔊 TTS Engine Below -----------------
+// ✅ ✅ ✅ 🧠 ElevenLabs Voice Integration Below ✅ ✅ ✅
+async function speakWithMyVoice(text) {
+  try {
+    const res = await fetch("/api/speak", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text })
+    });
 
+    if (!res.ok) {
+      console.error("🛑 ElevenLabs TTS failed");
+      return;
+    }
+
+    const blob = await res.blob();
+    const audio = new Audio(URL.createObjectURL(blob));
+    audio.play();
+  } catch (err) {
+    console.error("🎤 Voice error:", err);
+  }
+}
+
+// ----------------- 🔊 TTS Engine (Fallback) -----------------
 function detectLang(text) {
   return /[一-龥]/.test(text) ? "zh-CN" : "en-GB";
 }
@@ -196,7 +218,6 @@ document.getElementById("stopTTSBtn")?.addEventListener("click", () => {
 });
 
 // ----------------- 🎤 Voice Input -----------------
-
 if (window.SpeechRecognition || window.webkitSpeechRecognition) {
   const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
   const recognition = new SpeechRecognition();
@@ -231,7 +252,7 @@ if (window.SpeechRecognition || window.webkitSpeechRecognition) {
         questionInput.value = finalTranscript;
         submitQuestion();
       } else {
-        console.log("⚠️ 没有检测到语音内容。");
+        console.log("⚠️ 没有检测到语音內容。");
       }
     }
   };
