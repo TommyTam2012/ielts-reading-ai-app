@@ -103,7 +103,7 @@
 
   <script src="/script.js"></script>
 
-  <!-- Avatar Fallback + Kalidokit Integration -->
+  <!-- Avatar + Kalidokit Lip Sync -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.134.0/examples/js/loaders/GLTFLoader.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.134.0/examples/js/controls/OrbitControls.js"></script>
@@ -151,11 +151,10 @@
         const jawValue = Math.min((avg / 256) * 0.4, 0.4);
 
         avatarMesh.traverse(function (obj) {
-          if (obj.isMesh && obj.morphTargetDictionary && obj.morphTargetInfluences) {
-            Object.keys(obj.morphTargetDictionary).forEach(key => {
-              const idx = obj.morphTargetDictionary[key];
-              obj.morphTargetInfluences[idx] = jawValue;
-            });
+          if (obj.isMesh && obj.morphTargetInfluences) {
+            for (let i = 0; i < obj.morphTargetInfluences.length; i++) {
+              obj.morphTargetInfluences[i] = jawValue;
+            }
           }
         });
 
@@ -166,7 +165,7 @@
       audio.play();
     }
 
-    // ✅ You may replace this link with your real ElevenLabs stream
+    // ✅ Replace this with your ElevenLabs MP3 stream
     setupAudioAndLipSync("https://api.elevenlabs.io/samples/your-audio-file.mp3");
 
     function animate() {
