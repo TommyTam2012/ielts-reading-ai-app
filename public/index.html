@@ -103,7 +103,6 @@
 
   <script src="/script.js"></script>
 
-  <!-- Avatar + Kalidokit Lip Sync -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.134.0/examples/js/loaders/GLTFLoader.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.134.0/examples/js/controls/OrbitControls.js"></script>
@@ -125,7 +124,7 @@
 
     let avatarMesh;
     const loader = new THREE.GLTFLoader();
-    loader.load("https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/AnimatedMorphSphere/glTF-Binary/AnimatedMorphSphere.glb", function (gltf) {
+    loader.load("https://huggingface.co/roboflow/Avatar-Test-Files/resolve/main/morph.glb", function (gltf) {
       avatarMesh = gltf.scene;
       scene.add(avatarMesh);
       animate();
@@ -165,8 +164,9 @@
       audio.play();
     }
 
-    // ✅ Replace this with your ElevenLabs MP3 stream
-    setupAudioAndLipSync("https://api.elevenlabs.io/samples/your-audio-file.mp3");
+    document.getElementById("ttsBtn").addEventListener("click", () => {
+      setupAudioAndLipSync("https://api.elevenlabs.io/samples/your-audio-file.mp3");
+    });
 
     function animate() {
       requestAnimationFrame(animate);
