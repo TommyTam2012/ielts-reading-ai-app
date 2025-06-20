@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>IELTS 雅思閱讀 AI 考試助手</title>
   <link rel="stylesheet" href="/style.css" />
-  <script>console.log("🧭 IELTS index.html loaded");</script>  
+  <script>console.log("🧭 IELTS index.html loaded");</script>
   <style>
     .exam-grid {
       display: flex;
@@ -44,12 +44,12 @@
       margin: 30px auto;
       position: relative;
     }
-    #avatar {
+    #avatarImage {
       border-radius: 12px;
       border: 2px solid #003366;
       width: 320px;
       height: 320px;
-      z-index: 0;
+      object-fit: cover;
     }
     #mouthOverlay {
       position: absolute;
@@ -61,7 +61,7 @@
       background: #000;
       border-radius: 50%;
       z-index: 1;
-      opacity: 0.1;
+      opacity: 0.2;
       transition: transform 0.05s ease-in-out;
     }
   </style>
@@ -118,7 +118,7 @@
 
     <section class="avatar">
       <div id="avatarContainer">
-        <iframe id="avatar" allow="camera *; microphone *" src="https://tommy-tam.readyplayer.me/avatar?id=68553cde1b6a13eb98f1a0d5&frameApi" allowfullscreen></iframe>
+        <img id="avatarImage" src="https://tommy-tam.readyplayer.me/avatar?id=68553cde1b6a13eb98f1a0d5" alt="Avatar" />
         <div id="mouthOverlay"></div>
       </div>
     </section>
@@ -127,16 +127,6 @@
 
   <script src="/script.js"></script>
   <script>
-    const iframe = document.getElementById("avatar");
-    const message = {
-      target: "readyplayerme",
-      type: "subscribe",
-      eventName: "v1.frame.ready"
-    };
-    iframe.onload = () => {
-      iframe.contentWindow.postMessage(message, "*");
-    };
-
     const overlay = document.getElementById("mouthOverlay");
     let mouthAnimation;
 
