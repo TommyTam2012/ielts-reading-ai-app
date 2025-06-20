@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>IELTS 雅思閱讀 AI 考試助手</title>
   <link rel="stylesheet" href="/style.css" />
-  <script>console.log("🧭 IELTS index.html loaded");</script>  
+  <script>console.log("🧭 IELTS index.html loaded");</script>
   <style>
     .exam-grid {
       display: flex;
@@ -56,7 +56,6 @@
 </head>
 <body>
 
-  <!-- Main App -->
   <header>
     <div class="school-header">
       <img src="/exam/IELTS/logo.png" alt="School Logo" class="school-logo" />
@@ -108,7 +107,6 @@
     <canvas id="avatarCanvas"></canvas>
   </main>
 
-  <!-- Avatar + Kalidokit + ElevenLabs Audio Sync Script -->
   <script>
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(75, window.innerWidth / 480, 0.1, 1000);
@@ -125,7 +123,7 @@
 
     let avatarMesh;
     const loader = new THREE.GLTFLoader();
-    loader.load("https://models.readyplayer.me/6855125a30c1f56d77011c74.glb", function (gltf) {
+    loader.load("https://models.readyplayer.me/622b07efaf78e5b5fb68b7f1.glb", function (gltf) {
       avatarMesh = gltf.scene;
       scene.add(avatarMesh);
       animate();
@@ -147,13 +145,17 @@
       function lipSyncUpdate() {
         if (!avatarMesh) return;
         analyserNode.getByteFrequencyData(dataArray);
-        const avg = dataArray.reduce((a, b) => a + b) / dataArray.length;
+        const avg = dataArray.reduce((a, b) => a + b, 0) / dataArray.length;
         const jawValue = Math.min((avg / 256) * 0.15, 0.15);
 
         avatarMesh.traverse(function (obj) {
           if (obj.isMesh && obj.morphTargetDictionary && obj.morphTargetInfluences) {
-            const mouthIdx = obj.morphTargetDictionary['mouthOpen'] || 0;
-            obj.morphTargetInfluences[mouthIdx] = jawValue;
+            ['viseme_aa', 'viseme_oh', 'viseme_m'].forEach(key => {
+              const idx = obj.morphTargetDictionary[key];
+              if (idx !== undefined) {
+                obj.morphTargetInfluences[idx] = jawValue;
+              }
+            });
           }
         });
 
@@ -170,7 +172,7 @@
       renderer.render(scene, camera);
     }
 
-    // Example: Replace with your ElevenLabs MP3 URL
+    // 🔊 Replace with your actual ElevenLabs MP3 stream URL below
     setupAudioAndLipSync("https://api.elevenlabs.io/samples/your-audio-file.mp3");
   </script>
 
