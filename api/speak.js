@@ -11,17 +11,18 @@ export default async function handler(req, res) {
     text = data.text;
   }
 
-  const voiceId = "E2iXioKRyjSqJA8tUYsv"; // your ElevenLabs voice ID
+  const voiceId = "E2iXioKRyjSqJA8tUYsv"; // Your ElevenLabs voice ID
   const elevenKey = process.env.ELEVENLABS_API_KEY;
-  const didUsername = process.env.DID_USERNAME;
-  const didPassword = process.env.DID_PASSWORD;
 
-  if (!text || !elevenKey || !didUsername || !didPassword) {
-    return res.status(400).json({ error: "Missing input or API keys." });
+  // ✅ Hardcoded Base64-encoded Authorization Header (for testing only)
+  const didAuth = "Basic dGFlYXNsYWhrQGdtYWlsLmNvbTpHeVhMZ1gwUmdVX1E5VEhQSHBRN1M=";
+
+  if (!text || !elevenKey) {
+    return res.status(400).json({ error: "Missing input or ElevenLabs key." });
   }
 
   try {
-    // 🗣️ Step 1: Get ElevenLabs MP3
+    // Step 1: Get audio from ElevenLabs
     const ttsRes = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`, {
       method: "POST",
       headers: {
@@ -47,15 +48,12 @@ export default async function handler(req, res) {
     const audioBuffer = await ttsRes.arrayBuffer();
     const audioBase64 = Buffer.from(audioBuffer).toString("base64");
 
-    // 🔐 Encode Basic Auth for D-ID
-    const authHeader = "Basic " + Buffer.from(`${didUsername}:${didPassword}`).toString("base64");
-
-    // 🎥 Step 2: Send audio to D-ID using Basic Auth
+    // Step 2: Send audio to D-ID with Basic Auth
     const didRes = await fetch("https://api.d-id.com/talks", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: authHeader
+        Authorization: didAuth
       },
       body: JSON.stringify({
         script: {
@@ -70,13 +68,13 @@ export default async function handler(req, res) {
     if (!didRes.ok) {
       const errText = await didRes.text();
       console.error("🛑 D-ID error:", errText);
-      return res.status(500).json({ error: "D-ID stream error", detail: errText });
+      return res.status(500).json({ error: "D-ID error", detail: errText });
     }
 
     const didData = await didRes.json();
     const streamUrl = didData?.result_url || didData?.url || "";
 
-    // ✅ Return both audio and D-ID stream link
+    // Send back the audio and the avatar stream
     res.status(200).json({
       audioBase64,
       didStreamUrl: streamUrl
