@@ -11,11 +11,12 @@ export default async function handler(req, res) {
     text = data.text;
   }
 
-  const voiceId = "E2iXioKRyjSqJA8tUYsv";
+  const voiceId = "E2iXioKRyjSqJA8tUYsv"; // your ElevenLabs voice ID
   const elevenKey = process.env.ELEVENLABS_API_KEY;
-  const didKey = process.env.D_ID_API_KEY;
+  const didUsername = process.env.DID_USERNAME;
+  const didPassword = process.env.DID_PASSWORD;
 
-  if (!text || !elevenKey || !didKey) {
+  if (!text || !elevenKey || !didUsername || !didPassword) {
     return res.status(400).json({ error: "Missing input or API keys." });
   }
 
@@ -46,20 +47,23 @@ export default async function handler(req, res) {
     const audioBuffer = await ttsRes.arrayBuffer();
     const audioBase64 = Buffer.from(audioBuffer).toString("base64");
 
-    // 🎥 Step 2: Start D-ID WebSocket stream
+    // 🔐 Encode Basic Auth for D-ID
+    const authHeader = "Basic " + Buffer.from(`${didUsername}:${didPassword}`).toString("base64");
+
+    // 🎥 Step 2: Send audio to D-ID using Basic Auth
     const didRes = await fetch("https://api.d-id.com/talks", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${didKey}`
+        Authorization: authHeader
       },
       body: JSON.stringify({
         script: {
           type: "audio",
           audio: `data:audio/mpeg;base64,${audioBase64}`,
         },
-        driver_url: "bank://lively", // optional: "driver" preset
-        source_url: "https://tommy-tam.readyplayer.me/avatar?id=68553cde1b6a13eb98f1a0d5",
+        driver_url: "bank://lively",
+        source_url: "https://tommy-tam.readyplayer.me/avatar?id=68553cde1b6a13eb98f1a0d5"
       })
     });
 
@@ -72,7 +76,7 @@ export default async function handler(req, res) {
     const didData = await didRes.json();
     const streamUrl = didData?.result_url || didData?.url || "";
 
-    // ✅ Return both audio and D-ID URL
+    // ✅ Return both audio and D-ID stream link
     res.status(200).json({
       audioBase64,
       didStreamUrl: streamUrl
@@ -80,6 +84,6 @@ export default async function handler(req, res) {
 
   } catch (err) {
     console.error("💥 Server error:", err);
-    res.status(500).json({ error: "Server error", detail: err.message });
+    return res.status(500).json({ error: "TTS/D-ID Server error", detail: err.message });
   }
 }
