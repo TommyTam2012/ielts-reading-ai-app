@@ -44,12 +44,16 @@
       margin: 30px auto;
       position: relative;
     }
-    #avatarImage {
+    #avatarImage,
+    #didVideo {
       border-radius: 12px;
       border: 2px solid #003366;
       width: 320px;
       height: 320px;
       object-fit: cover;
+    }
+    #didVideo {
+      display: none;
     }
     #mouthOverlay {
       position: absolute;
@@ -119,14 +123,16 @@
     <section class="avatar">
       <div id="avatarContainer">
         <img id="avatarImage" src="https://tommy-tam.readyplayer.me/avatar?id=68553cde1b6a13eb98f1a0d5" alt="Avatar" />
+        <iframe id="didVideo" allow="autoplay" frameborder="0"></iframe>
         <div id="mouthOverlay"></div>
       </div>
     </section>
-
   </main>
 
   <script src="/script.js"></script>
+
   <script>
+    // Mouth animation (fallback for static image)
     const overlay = document.getElementById("mouthOverlay");
     let mouthAnimation;
 
@@ -153,6 +159,18 @@
       audio.play();
       updateMouth();
     });
+
+    // New function to switch to D-ID iframe stream
+    function switchToDIDStream(streamUrl) {
+      const iframe = document.getElementById("didVideo");
+      const staticAvatar = document.getElementById("avatarImage");
+      iframe.src = streamUrl;
+      iframe.style.display = "block";
+      staticAvatar.style.display = "none";
+      console.log("🎥 D-ID stream activated:", streamUrl);
+    }
+
+    // Example: switchToDIDStream("https://live.d-id.com/streams/YOUR_SESSION_ID");
   </script>
 </body>
 </html>
