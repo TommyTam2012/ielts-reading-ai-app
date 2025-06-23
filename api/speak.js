@@ -14,15 +14,11 @@ export default async function handler(req, res) {
   const voiceId = "E2iXioKRyjSqJA8tUYsv"; // Your ElevenLabs voice ID
   const elevenKey = process.env.ELEVENLABS_API_KEY;
 
-  // ✅ Hardcoded Base64-encoded Authorization Header (for testing only)
-  const didAuth = "Basic dGFlYXNsYWhrQGdtYWlsLmNvbTpHeVhMZ1gwUmdVX1E5VEhQSHBRN1M=";
-
   if (!text || !elevenKey) {
     return res.status(400).json({ error: "Missing input or ElevenLabs key." });
   }
 
   try {
-    // Step 1: Get audio from ElevenLabs
     const ttsRes = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`, {
       method: "POST",
       headers: {
@@ -48,40 +44,14 @@ export default async function handler(req, res) {
     const audioBuffer = await ttsRes.arrayBuffer();
     const audioBase64 = Buffer.from(audioBuffer).toString("base64");
 
-    // Step 2: Send audio to D-ID with Basic Auth
-    const didRes = await fetch("https://api.d-id.com/talks", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: didAuth
-      },
-      body: JSON.stringify({
-        script: {
-          type: "audio",
-          audio: `data:audio/mpeg;base64,${audioBase64}`,
-        },
-        driver_url: "bank://lively",
-        source_url: "https://tommy-tam.readyplayer.me/avatar?id=68553cde1b6a13eb98f1a0d5"
-      })
-    });
-
-    if (!didRes.ok) {
-      const errText = await didRes.text();
-      console.error("🛑 D-ID error:", errText);
-      return res.status(500).json({ error: "D-ID error", detail: errText });
-    }
-
-    const didData = await didRes.json();
-    const streamUrl = didData?.result_url || didData?.url || "";
-
-    // Send back the audio and the avatar stream
+    // ✅ Return only voice for now — no D-ID
     res.status(200).json({
       audioBase64,
-      didStreamUrl: streamUrl
+      didStreamUrl: null
     });
 
   } catch (err) {
     console.error("💥 Server error:", err);
-    return res.status(500).json({ error: "TTS/D-ID Server error", detail: err.message });
+    return res.status(500).json({ error: "TTS Server Error", detail: err.message });
   }
 }
