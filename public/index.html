@@ -115,7 +115,8 @@
     </section>
   </main>
 
-  <script src="/script.js"></script>
+  <!-- ✅ Defer added here -->
+  <script src="/script.js" defer></script>
 
   <script>
     function switchToDIDStream(streamUrl) {
@@ -126,9 +127,6 @@
       staticAvatar.style.display = "none";
       console.log("🎥 D-ID stream activated:", streamUrl);
     }
-
-    // Example trigger:
-    // switchToDIDStream("https://live.d-id.com/streams/YOUR_SESSION_ID");
   </script>
 </body>
 </html>
