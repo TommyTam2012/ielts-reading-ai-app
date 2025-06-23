@@ -55,19 +55,6 @@
     #didVideo {
       display: none;
     }
-    #mouthOverlay {
-      position: absolute;
-      bottom: 40px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 60px;
-      height: 30px;
-      background: #000;
-      border-radius: 50%;
-      z-index: 1;
-      opacity: 0.2;
-      transition: transform 0.05s ease-in-out;
-    }
   </style>
 </head>
 <body>
@@ -124,7 +111,6 @@
       <div id="avatarContainer">
         <img id="avatarImage" src="https://tommy-tam.readyplayer.me/avatar?id=68553cde1b6a13eb98f1a0d5" alt="Avatar" />
         <iframe id="didVideo" allow="autoplay" frameborder="0"></iframe>
-        <div id="mouthOverlay"></div>
       </div>
     </section>
   </main>
@@ -132,35 +118,6 @@
   <script src="/script.js"></script>
 
   <script>
-    // Mouth animation (fallback for static image)
-    const overlay = document.getElementById("mouthOverlay");
-    let mouthAnimation;
-
-    document.getElementById("ttsBtn").addEventListener("click", () => {
-      const audio = new Audio("https://api.elevenlabs.io/samples/your-audio-file.mp3");
-      const analyser = new (window.AudioContext || window.webkitAudioContext)();
-      const source = analyser.createMediaElementSource(audio);
-      const analyserNode = analyser.createAnalyser();
-      source.connect(analyserNode);
-      analyserNode.connect(analyser.destination);
-
-      const dataArray = new Uint8Array(analyserNode.frequencyBinCount);
-
-      function updateMouth() {
-        analyserNode.getByteFrequencyData(dataArray);
-        const avg = dataArray.reduce((a, b) => a + b, 0) / dataArray.length;
-        const scale = Math.min(avg / 128, 1);
-        overlay.style.transform = `translateX(-50%) scaleY(${0.3 + scale * 0.7})`;
-        mouthAnimation = requestAnimationFrame(updateMouth);
-      }
-
-      audio.onended = () => cancelAnimationFrame(mouthAnimation);
-
-      audio.play();
-      updateMouth();
-    });
-
-    // New function to switch to D-ID iframe stream
     function switchToDIDStream(streamUrl) {
       const iframe = document.getElementById("didVideo");
       const staticAvatar = document.getElementById("avatarImage");
@@ -170,7 +127,8 @@
       console.log("🎥 D-ID stream activated:", streamUrl);
     }
 
-    // Example: switchToDIDStream("https://live.d-id.com/streams/YOUR_SESSION_ID");
+    // Example trigger:
+    // switchToDIDStream("https://live.d-id.com/streams/YOUR_SESSION_ID");
   </script>
 </body>
 </html>
