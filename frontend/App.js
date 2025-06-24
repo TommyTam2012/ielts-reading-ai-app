@@ -44,6 +44,7 @@ export default function App() {
     );
   }
 
+  // original IELTS app content starts here
   const exams = [
     { id: "ielts01", label: "📘 IELTS Academic Reading 1", pdf: "/exams/ielts/ielts01.pdf" },
     { id: "ielts02", label: "📘 IELTS Academic Reading 2", pdf: "/exams/ielts/ielts02.pdf" },
@@ -123,39 +124,6 @@ export default function App() {
     }
   };
 
-  // 🔊 NEW: Clone Voice + D-ID Avatar
-  const handleSpeak = async () => {
-    if (!question) {
-      alert("⚠️ 请先输入一个问题或句子！");
-      return;
-    }
-
-    try {
-      const res = await fetch("/api/speak", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          text: question,
-          imageUrl: "https://your-avatar-image.png" // Replace with real avatar image
-        })
-      });
-
-      const data = await res.json();
-
-      if (data.audioBase64) {
-        const audio = new Audio(`data:audio/mp3;base64,${data.audioBase64}`);
-        audio.play();
-      }
-
-      if (data.didStreamUrl) {
-        window.open(data.didStreamUrl, "_blank");
-      }
-    } catch (err) {
-      console.error("Speak API error:", err);
-      alert("❌ 语音或动画生成失败！");
-    }
-  };
-
   useEffect(() => {
     if (!("SpeechRecognition" in window || "webkitSpeechRecognition" in window)) return;
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -211,7 +179,7 @@ export default function App() {
           onChange={(e) => setQuestion(e.target.value)}
           placeholder="例如：What is the answer to Q18? 或者 Which paragraph mentions tourism in the Arctic?"
         />
-        <div className="mt-2 flex gap-3 flex-wrap">
+        <div className="mt-2 flex gap-3">
           <button
             onClick={handleSubmit}
             className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded"
@@ -223,12 +191,6 @@ export default function App() {
             className="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded"
           >
             🎤 语音提问
-          </button>
-          <button
-            onClick={handleSpeak}
-            className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded"
-          >
-            🤖 Clone Voice + Avatar
           </button>
         </div>
       </div>
